@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Student Dashboard</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='myStyle.css') }}">
+    </head>
+    <body>
+        <h1>ACME University</h1>
+        <div style="text-align: right; margin-bottom: 20px;">
+            <button onclick="logout()">Sign out</button>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h2>Your Courses</h2>
+            <table id="enrolledCoursesTable"></table>
+        </div>
+
+        <div>
+            <h2>Add Courses</h2>
+            <table id="availableCoursesTable"></table>
+        </div>
+
+        <script src="/static/script.js"></script>
+        <script>
+            loadStudentEnrolledCourses();
+            loadStudentAvailableCourses();
+        </script>
+    </body>
+</html>

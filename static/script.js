@@ -122,3 +122,147 @@ async function editGrade(course_id, student_id) {
         alert(data.message);
     }
 }
+
+// Student Functions
+async function logout() {
+    const response = await fetch("/logout", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"}
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        window.location.href = "/";
+    } else {
+        alert(data.message);
+    }
+}
+
+async function loadStudentEnrolledCourses() {
+    const response = await fetch("/student/enrolled-courses");
+    if (!response.ok) {
+        alert("Failed to load enrolled courses");
+        return;
+    }
+
+    const data = await response.json();
+
+    let table = document.getElementById("enrolledCoursesTable");
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Course Name</th>
+                <th>Teacher</th>
+                <th>Grade</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+    `;
+
+    if (data.length === 0) {
+        table.innerHTML += `
+            <tr>
+                <td colspan="4" style="text-align: center;">No courses enrolled</td>
+            </tr>
+        `;
+    } else {
+        data.forEach(course => {
+            const gradeDisplay = course.grade !== null ? course.grade : "TBD";
+            table.innerHTML += `
+            <tr>
+                <td>${course.name}</td>
+                <td>${course.teacher}</td>
+                <td>${gradeDisplay}</td>
+                <td>
+                    <button onclick="unenrollCourse(${course.id})">Remove</button>
+                </td>
+            </tr>
+            `;
+        });
+    }
+}
+
+async function loadStudentAvailableCourses() {
+    const response = await fetch("/student/available-courses");
+    if (!response.ok) {
+        alert("Failed to load available courses");
+        return;
+    }
+
+    const data = await response.json();
+
+    let table = document.getElementById("availableCoursesTable");
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Course Name</th>
+                <th>Teacher</th>
+                <th>Time</th>
+                <th>Students Enrolled</th>
+                <th>Add class</th>
+            </tr>
+        </thead>
+    `;
+
+    data.forEach(course => {
+        let buttonHTML = "";
+        if (course.already_enrolled) {
+            buttonHTML = `<button disabled style="background-color: gray; cursor: not-allowed;">Enrolled</button>`;
+        } else if (course.can_enroll) {
+            buttonHTML = `<button onclick="enrollCourse(${course.id})">+</button>`;
+        } else {
+            buttonHTML = `<button disabled style="background-color: red; cursor: not-allowed;">Full</button>`;
+        }
+
+        table.innerHTML += `
+        <tr>
+            <td>${course.name}</td>
+            <td>${course.teacher}</td>
+            <td>TBD</td>
+            <td>${course.enrolled}/${course.capacity}</td>
+            <td>
+                ${buttonHTML}
+            </td>
+        </tr>
+        `;
+    });
+}
+
+async function enrollCourse(course_id) {
+    const response = await fetch(`/student/enroll/${course_id}`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"}
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        alert(data.message);
+        loadStudentEnrolledCourses();
+        loadStudentAvailableCourses();
+    } else {
+        alert(data.message);
+    }
+}
+
+async function unenrollCourse(course_id) {
+    if (!confirm("Are you sure you want to remove this course?")) {
+        return;
+    }
+
+    const response = await fetch(`/student/unenroll/${course_id}`, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"}
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        alert(data.message);
+        loadStudentEnrolledCourses();
+        loadStudentAvailableCourses();
+    } else {
+        alert(data.message);
+    }
+}

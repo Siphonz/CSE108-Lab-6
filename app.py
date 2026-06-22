@@ -12,11 +12,15 @@ db = SQLAlchemy(app)
 class Student(db.Model):
     __tablename__ = "students"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
 
     def to_dict(self):
         return {
+            "id": self.id,
             "name": self.name,
+            "username": self.username,
         }
 
 class Instructor(db.Model):
@@ -32,6 +36,7 @@ class Course(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     course_name = db.Column(db.String(100))
+    capacity = db.Column(db.Integer, default=10)
 
     instructor_id = db.Column(
         db.Integer,
@@ -60,44 +65,77 @@ with app.app_context():
 
     if not Instructor.query.first():
 
-        instructor = Instructor(
-            name="John Smith",
-            username="jsmith",
+        # Create instructors
+        instructor1 = Instructor(
+            name="Susan Walker",
+            username="swalker",
+            password="password"
+        )
+        instructor2 = Instructor(
+            name="Ammon Hepworth",
+            username="ahepworth",
+            password="password"
+        )
+        instructor3 = Instructor(
+            name="Ralph Jenkins",
+            username="rjenkins",
             password="password"
         )
 
-        db.session.add(instructor)
+        db.session.add(instructor1)
+        db.session.add(instructor2)
+        db.session.add(instructor3)
         db.session.commit()
 
-        course = Course(
-            course_name="CS101",
-            instructor_id=instructor.id
+        # Create courses
+        course1 = Course(
+            course_name="Physics 121",
+            capacity=10,
+            instructor_id=instructor1.id
+        )
+        course2 = Course(
+            course_name="CS 106",
+            capacity=10,
+            instructor_id=instructor2.id
+        )
+        course3 = Course(
+            course_name="Math 101",
+            capacity=8,
+            instructor_id=instructor3.id
+        )
+        course4 = Course(
+            course_name="CS 162",
+            capacity=4,
+            instructor_id=instructor2.id
         )
 
-        db.session.add(course)
+        db.session.add(course1)
+        db.session.add(course2)
+        db.session.add(course3)
+        db.session.add(course4)
+        db.session.commit()
 
-        student1 = Student(name="Alice")
-        student2 = Student(name="Bob")
+        # Create students
+        student1 = Student(name="Chuck Norris", username="cnorris", password="password123")
+        student2 = Student(name="Mindy", username="mindy", password="password123")
+        student3 = Student(name="Alice", username="alice", password="password")
+        student4 = Student(name="Bob", username="bob", password="password")
 
         db.session.add(student1)
         db.session.add(student2)
+        db.session.add(student3)
+        db.session.add(student4)
         db.session.commit()
 
-        db.session.add(
-            Enrollment(
-                student_id=student1.id,
-                course_id=course.id,
-                grade=95
-            )
-        )
-
-        db.session.add(
-            Enrollment(
-                student_id=student2.id,
-                course_id=course.id,
-                grade=87
-            )
-        )
+        # Create enrollments
+        db.session.add(Enrollment(student_id=student1.id, course_id=course1.id, grade=None))
+        db.session.add(Enrollment(student_id=student1.id, course_id=course2.id, grade=None))
+        db.session.add(Enrollment(student_id=student2.id, course_id=course1.id, grade=None))
+        db.session.add(Enrollment(student_id=student2.id, course_id=course2.id, grade=None))
+        db.session.add(Enrollment(student_id=student2.id, course_id=course3.id, grade=None))
+        db.session.add(Enrollment(student_id=student2.id, course_id=course4.id, grade=None))
+        db.session.add(Enrollment(student_id=student3.id, course_id=course1.id, grade=95))
+        db.session.add(Enrollment(student_id=student4.id, course_id=course2.id, grade=87))
 
         db.session.commit()
 
@@ -133,15 +171,29 @@ def login():
     # When the admin credentials are used, send the user to the admin dashboard.
     if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
         session.pop("instructor_id", None)
+        session.pop("student_id", None)
         session["admin_logged_in"] = True
         return jsonify({
             "message": "Admin login successful",
             "redirect": "/admin"
         }), 200
 
+    # Check for student login
+    student = Student.query.filter_by(username=username).first()
+    if student and student.password == password:
+        session.pop("instructor_id", None)
+        session.pop("admin_logged_in", None)
+        session["student_id"] = student.id
+        return jsonify({
+            "message": "Login successful",
+            "redirect": "/student"
+        }), 200
+
+    # Check for instructor login
     instructor = Instructor.query.filter_by(username=username).first()
 
     if instructor and instructor.password == password:
+        session.pop("student_id", None)
         session.pop("admin_logged_in", None)
         session["instructor_id"] = instructor.id
 
@@ -159,10 +211,185 @@ def login():
 def logout():
 
     session.pop("instructor_id", None)
+    session.pop("student_id", None)
     session.pop("admin_logged_in", None)
 
     return jsonify({
         "message": "Logged out"
+    })
+
+# Student routes
+@app.route("/student")
+def student_page():
+
+    if "student_id" not in session:
+        return redirect("/")
+
+    return render_template("student.html")
+
+
+# GET /student/enrolled-courses
+@app.route("/student/enrolled-courses", methods=["GET"])
+def get_enrolled_courses():
+
+    student_id = session.get("student_id")
+
+    if not student_id:
+        return jsonify({
+            "message": "Not logged in"
+        }), 401
+
+    # Get courses the student is enrolled in with their grade
+    rows = (
+        db.session.query(
+            Course.id,
+            Course.course_name,
+            Course.capacity,
+            Instructor.name,
+            Enrollment.grade
+        )
+        .join(
+            Enrollment,
+            Course.id == Enrollment.course_id
+        )
+        .join(
+            Instructor,
+            Course.instructor_id == Instructor.id
+        )
+        .filter(
+            Enrollment.student_id == student_id
+        )
+        .all()
+    )
+
+    result = []
+    for row in rows:
+        result.append({
+            "id": row[0],
+            "name": row[1],
+            "teacher": row[3],
+            "grade": row[4]
+        })
+
+    return jsonify(result)
+
+
+# GET /student/available-courses
+@app.route("/student/available-courses", methods=["GET"])
+def get_available_courses():
+
+    student_id = session.get("student_id")
+
+    if not student_id:
+        return jsonify({
+            "message": "Not logged in"
+        }), 401
+
+    # Get all courses with enrollment count
+    courses = Course.query.all()
+    result = []
+
+    for course in courses:
+        enrollment_count = Enrollment.query.filter_by(course_id=course.id).count()
+        instructor = Instructor.query.get(course.instructor_id)
+        
+        # Check if student is already enrolled
+        already_enrolled = Enrollment.query.filter_by(
+            student_id=student_id,
+            course_id=course.id
+        ).first()
+
+        result.append({
+            "id": course.id,
+            "name": course.course_name,
+            "teacher": instructor.name if instructor else "Unknown",
+            "capacity": course.capacity,
+            "enrolled": enrollment_count,
+            "already_enrolled": already_enrolled is not None,
+            "can_enroll": enrollment_count < course.capacity and not already_enrolled
+        })
+
+    return jsonify(result)
+
+
+# POST /student/enroll/<course_id>
+@app.route("/student/enroll/<int:course_id>", methods=["POST"])
+def enroll_in_course(course_id):
+
+    student_id = session.get("student_id")
+
+    if not student_id:
+        return jsonify({
+            "message": "Not logged in"
+        }), 401
+
+    # Check if course exists
+    course = Course.query.get(course_id)
+    if not course:
+        return jsonify({
+            "message": "Course not found"
+        }), 404
+
+    # Check if student is already enrolled
+    existing_enrollment = Enrollment.query.filter_by(
+        student_id=student_id,
+        course_id=course_id
+    ).first()
+
+    if existing_enrollment:
+        return jsonify({
+            "message": "Already enrolled in this course"
+        }), 400
+
+    # Check if course is full
+    enrollment_count = Enrollment.query.filter_by(course_id=course_id).count()
+    if enrollment_count >= course.capacity:
+        return jsonify({
+            "message": "Course is at capacity"
+        }), 400
+
+    # Enroll the student
+    enrollment = Enrollment(
+        student_id=student_id,
+        course_id=course_id,
+        grade=None
+    )
+
+    db.session.add(enrollment)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Successfully enrolled in course"
+    }), 201
+
+
+# DELETE /student/unenroll/<course_id>
+@app.route("/student/unenroll/<int:course_id>", methods=["DELETE"])
+def unenroll_from_course(course_id):
+
+    student_id = session.get("student_id")
+
+    if not student_id:
+        return jsonify({
+            "message": "Not logged in"
+        }), 401
+
+    # Find and delete the enrollment
+    enrollment = Enrollment.query.filter_by(
+        student_id=student_id,
+        course_id=course_id
+    ).first()
+
+    if not enrollment:
+        return jsonify({
+            "message": "Enrollment not found"
+        }), 404
+
+    db.session.delete(enrollment)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Successfully unenrolled from course"
     })
 
 # GET /courses
