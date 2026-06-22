@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Instructor Dashboard</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='myStyle.css') }}">
+    </head>
+    <body>
+        <h1>Instructor Dashboard</h1>
+
+        <table id="tableDisplay"></table>
+
+        <script src="/static/script.js"></script>
+        <script>
+            loadInstructorCourse();
+        </script>
+    </body>
+</html>

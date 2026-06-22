@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Enrollment App</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='myStyle.css') }}">
+    </head>
+    <body>
+
+        <h1 class="rowAlign">UC Merced</h1>
+
+        <div>
+            <input id="usernameInput" placeholder="Username">
+
+            <input id="pwdInput" type="password" placeholder="Password">
+
+            <button onclick="login()">Sign in</button>
+        </div>
+
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    </body>
+</html>
