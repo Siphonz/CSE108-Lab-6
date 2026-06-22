@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Admin Login</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='myStyle.css') }}">
+    </head>
+    <body>
+        <h1 class="rowAlign">UC Merced Admin</h1>
+
+        <div class="loginBox">
+            <h2>Admin Login</h2>
+            <input id="adminUsername" placeholder="Username">
+            <input id="adminPassword" type="password" placeholder="Password">
+            <button onclick="adminLogin()">Sign in</button>
+        </div>
+
+        <script src="{{ url_for('static', filename='admin_login.js') }}"></script>
+    </body>
+</html>

@@ -56,3 +56,45 @@ button:hover    {
     margin: 0 auto;
     margin-top: 32px;
 }
+/* Simple styles for the admin page */
+.adminBox {
+    border: 1px solid coral;
+    padding: 15px;
+    margin: 20px 0;
+    background-color: rgb(0, 11, 71);
+}
+
+.adminBox input {
+    margin: 4px;
+    padding-left: 6px;
+}
+
+.adminNote {
+    color: white;
+}
+
+.adminBox table {
+    margin-left: 0;
+}
+
+.adminBox th, .adminBox td {
+    width: auto;
+}
+
+.loginBox {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid coral;
+}
+.loginBox input {
+    display: block;
+    width: 95%;
+    margin: 10px 0;
+    padding-left: 6px;
+}
+
+.loginMessage {
+    color: white;
+    text-align: center;
+}

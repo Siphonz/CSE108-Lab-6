@@ -14,8 +14,7 @@ async function login()  {
     const data = await response.json();
 
     if (response.ok) {
-         window.location.href = "/instructor";
-        // loadInstructorCourse();
+        window.location.href = data.redirect;
     }
     else {
         alert(data.message);

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Admin Page</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='myStyle.css') }}">
+    </head>
+    <body>
+        <h1>Admin Dashboard</h1>
+        <button onclick="adminLogout()">Sign out</button>
+        <p class="adminNote">Admin page for adding, editing, and deleting database data.</p>
+
+        <div class="adminBox">
+            <h2>Students</h2>
+            <input id="studentName" placeholder="Student name">
+            <button onclick="addStudent()">Add Student</button>
+            <table id="studentsTable"></table>
+        </div>
+
+        <div class="adminBox">
+            <h2>Instructors</h2>
+            <input id="instructorName" placeholder="Name">
+            <input id="instructorUsername" placeholder="Username">
+            <input id="instructorPassword" placeholder="Password">
+            <button onclick="addInstructor()">Add Instructor</button>
+            <table id="instructorsTable"></table>
+        </div>
+
+        <div class="adminBox">
+            <h2>Courses</h2>
+            <input id="courseName" placeholder="Course name">
+            <input id="courseInstructorId" placeholder="Instructor ID (optional)">
+            <button onclick="addCourse()">Add Course</button>
+            <table id="coursesTable"></table>
+        </div>
+
+        <div class="adminBox">
+            <h2>Enrollments</h2>
+            <input id="enrollmentStudentId" placeholder="Student ID">
+            <input id="enrollmentCourseId" placeholder="Course ID">
+            <input id="enrollmentGrade" placeholder="Grade">
+            <button onclick="addEnrollment()">Add Enrollment</button>
+            <table id="enrollmentsTable"></table>
+        </div>
+
+        <script src="{{ url_for('static', filename='admin.js') }}"></script>
+    </body>
+</html>
