@@ -1,3 +1,4 @@
+// Login/out Functions
 async function login()  {
     const user = document.getElementById("usernameInput").value;
     const pwd = document.getElementById("pwdInput").value;
@@ -21,15 +22,36 @@ async function login()  {
     }
 }
 
+async function logout() {
+    const response = await fetch("/logout", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"}
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        window.location.href = "/";
+    } else {
+        alert(data.message);
+    }
+}
+
+// Instructor Functions
 async function loadInstructorCourse()   {
     const response = await fetch("/courses");
     if (!response.ok) {
         alert("Failed to load courses");
         return;
     }
-
     const data = await response.json();
 
+    let btnState = document.getElementById("exitBtn");  // Set Logout Button
+    btnState.innerHTML = `
+        <button onclick="logout()">
+            Log Out
+        </button>
+    `;
     let table = document.getElementById("tableDisplay");
     table.innerHTML = `
         <thead>
@@ -59,8 +81,14 @@ async function loadCourseStudents(course_id)   {
         alert("Failed to load enrollment");
         return;
     }
-
     const data = await response.json();
+
+    let btnState = document.getElementById("exitBtn");  // Set Go Back button
+    btnState.innerHTML = `
+        <button onclick="loadInstructorCourse()">
+            Go Back
+        </button>
+    `;
 
     let table = document.getElementById("tableDisplay");
     table.innerHTML = `
@@ -73,7 +101,7 @@ async function loadCourseStudents(course_id)   {
         </thead>
     `;
 
-    data.forEach(student => {
+    data.forEach(student => {   // Add course enrollment list to table html
         table.innerHTML += `
         <tr>
             <td>${student.name}</td>
@@ -124,21 +152,6 @@ async function editGrade(course_id, student_id) {
 }
 
 // Student Functions
-async function logout() {
-    const response = await fetch("/logout", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"}
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-        window.location.href = "/";
-    } else {
-        alert(data.message);
-    }
-}
-
 async function loadStudentEnrolledCourses() {
     const response = await fetch("/student/enrolled-courses");
     if (!response.ok) {
