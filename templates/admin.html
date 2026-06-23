@@ -8,10 +8,13 @@
         <h1>Admin Dashboard</h1>
         <button onclick="adminLogout()">Sign out</button>
         <p class="adminNote">Admin page for adding, editing, and deleting database data.</p>
+        <p id="adminMessage" class="adminMessage" role="status" aria-live="polite"></p>
 
         <div class="adminBox">
             <h2>Students</h2>
             <input id="studentName" placeholder="Student name">
+            <input id="studentUsername" placeholder="Username">
+            <input id="studentPassword" type="password" placeholder="Password">
             <button onclick="addStudent()">Add Student</button>
             <table id="studentsTable"></table>
         </div>
@@ -28,6 +31,7 @@
         <div class="adminBox">
             <h2>Courses</h2>
             <input id="courseName" placeholder="Course name">
+            <input id="courseTime" placeholder="Course time (e.g., MWF 10:00 AM)">
             <input id="courseInstructorId" placeholder="Instructor ID (optional)">
             <button onclick="addCourse()">Add Course</button>
             <table id="coursesTable"></table>

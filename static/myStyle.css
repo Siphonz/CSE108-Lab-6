@@ -10,11 +10,10 @@ h1, h2  {
 
 table {
     justify-content: center;
-    width: 90%;
     text-align: center;
     border-collapse: collapse;
     margin: 20px auto;
-    border-radius: 8px;
+
 }
 
 th, td {
@@ -34,20 +33,15 @@ th {
 button, input {
     border: 1px solid coral;
     height: 32px;
-    border-radius: 8px;
 }
 
-button {
+button  {
     color: rgb(0, 0, 0);
     background-color: coral;
-    cursor: pointer;
-    padding: 0 12px;
-    font-weight: bold;
 }
 
-button:hover {
+button:hover    {
     color: rgb(255, 255, 255);
-    background-color: rgb(255, 102, 46);
 }
 
 .rowAlign   {
@@ -58,8 +52,7 @@ button:hover {
 }
 
 .loginBox {
-    display: flex;
-    flex-direction: column;
+    display:flexbox;
     align-items: center;
     margin: 0 auto;
     margin-top: 32px;
@@ -67,10 +60,9 @@ button:hover {
 /* Simple styles for the admin page */
 .adminBox {
     border: 1px solid coral;
-    border-radius: 8px;
-    padding: 18px;
+    padding: 15px;
     margin: 20px 0;
-    background-color: rgb(8, 22, 92);
+    background-color: rgb(0, 11, 71);
 }
 
 .adminBox input {
@@ -95,8 +87,6 @@ button:hover {
     margin: 50px auto;
     padding: 20px;
     border: 1px solid coral;
-    border-radius: 10px;
-    background-color: rgb(8, 22, 92);
 }
 .loginBox input {
     display: block;
@@ -110,8 +100,12 @@ button:hover {
     text-align: center;
 }
 
-/* Highlight row on hover*/
-tr:hover td {
-    background-color: rgb(135, 150, 205);
+.adminMessage {
+    min-height: 1.2em;
+    color: white;
+    font-weight: bold;
 }
 
+.adminMessage.error {
+    color: #ffb3b3;
+}

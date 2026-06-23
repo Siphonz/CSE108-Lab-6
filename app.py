@@ -572,7 +572,11 @@ def admin_data():
     if error:
         return error
 
-    students = [{"id": student.id, "name": student.name} for student in Student.query.order_by(Student.id).all()]
+    students = [{
+        "id": student.id,
+        "name": student.name,
+        "username": student.username
+    } for student in Student.query.order_by(Student.id).all()]
     instructors = [{
         "id": instructor.id,
         "name": instructor.name,
@@ -582,6 +586,7 @@ def admin_data():
     courses = [{
         "id": course.id,
         "course_name": course.course_name,
+        "time": course.time,
         "instructor_id": course.instructor_id
     } for course in Course.query.order_by(Course.id).all()]
     enrollments = [{
@@ -605,11 +610,13 @@ def admin_add_student():
         return error
     data = request.get_json() or {}
     name = data.get("name", "").strip()
-    if not name:
-        return jsonify({"message": "Student name is required"}), 400
-    if Student.query.filter_by(name=name).first():
-        return jsonify({"message": "Student name already exists"}), 400
-    db.session.add(Student(name=name))
+    username = data.get("username", "").strip()
+    password = data.get("password", "").strip()
+    if not name or not username or not password:
+        return jsonify({"message": "Student name, username, and password are required"}), 400
+    if Student.query.filter_by(username=username).first():
+        return jsonify({"message": "Student username already exists"}), 400
+    db.session.add(Student(name=name, username=username, password=password))
     db.session.commit()
     return jsonify({"message": "Student added"}), 201
 
@@ -624,12 +631,18 @@ def admin_edit_student(student_id):
         return jsonify({"message": "Student not found"}), 404
     data = request.get_json() or {}
     name = data.get("name", "").strip()
-    if not name:
-        return jsonify({"message": "Student name is required"}), 400
-    existing = Student.query.filter(Student.name == name, Student.id != student_id).first()
+    username = data.get("username", "").strip()
+    password = data.get("password", "").strip()
+    if not name or not username:
+        return jsonify({"message": "Student name and username are required"}), 400
+    existing = Student.query.filter(Student.username == username, Student.id != student_id).first()
     if existing:
-        return jsonify({"message": "Student name already exists"}), 400
+        return jsonify({"message": "Student username already exists"}), 400
     student.name = name
+    student.username = username
+    # Blank password means keep the existing password rather than overwrite it.
+    if password:
+        student.password = password
     db.session.commit()
     return jsonify({"message": "Student updated"})
 
@@ -723,14 +736,15 @@ def admin_add_course():
         return error
     data = request.get_json() or {}
     course_name = data.get("course_name", "").strip()
+    course_time = data.get("time", "").strip()
     instructor_id = get_instructor_id(data.get("instructor_id"))
-    if not course_name:
-        return jsonify({"message": "Course name is required"}), 400
+    if not course_name or not course_time:
+        return jsonify({"message": "Course name and time are required"}), 400
     if instructor_id == "invalid":
         return jsonify({"message": "Instructor ID must be a number"}), 400
     if instructor_id is not None and not db.session.get(Instructor, instructor_id):
         return jsonify({"message": "Instructor not found"}), 404
-    db.session.add(Course(course_name=course_name, instructor_id=instructor_id))
+    db.session.add(Course(course_name=course_name, time=course_time, instructor_id=instructor_id))
     db.session.commit()
     return jsonify({"message": "Course added"}), 201
 
@@ -745,14 +759,16 @@ def admin_edit_course(course_id):
         return jsonify({"message": "Course not found"}), 404
     data = request.get_json() or {}
     course_name = data.get("course_name", "").strip()
+    course_time = data.get("time", "").strip()
     instructor_id = get_instructor_id(data.get("instructor_id"))
-    if not course_name:
-        return jsonify({"message": "Course name is required"}), 400
+    if not course_name or not course_time:
+        return jsonify({"message": "Course name and time are required"}), 400
     if instructor_id == "invalid":
         return jsonify({"message": "Instructor ID must be a number"}), 400
     if instructor_id is not None and not db.session.get(Instructor, instructor_id):
         return jsonify({"message": "Instructor not found"}), 404
     course.course_name = course_name
+    course.time = course_time
     course.instructor_id = instructor_id
     db.session.commit()
     return jsonify({"message": "Course updated"})
