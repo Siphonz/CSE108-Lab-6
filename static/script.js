@@ -57,6 +57,8 @@ async function loadInstructorCourse()   {
         <thead>
             <tr>
                 <th>Course Name</th>
+                <th>Time</th>
+                <th>Capacity</th>
             </tr>
         </thead>
     `;
@@ -65,6 +67,8 @@ async function loadInstructorCourse()   {
         table.innerHTML += `
         <tr>
             <td>${course.name}</td>
+            <td>${course.time}</td>
+            <td>${course.enrolled}/${course.capacity}</td>
             <td>
                 <button onclick="loadCourseStudents('${course.id}')">
                     View Students
