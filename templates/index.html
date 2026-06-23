@@ -8,14 +8,15 @@
 
         <h1 class="rowAlign">UC Merced</h1>
 
-        <p class="loginMessage">Please Login</p>
+        <div class="loginBox">
+            <h2 class="loginMessage">Please Login</h2>
 
-        <div>
-            <input id="usernameInput" placeholder="Username">
+            <div class="rowAlign"><input id="usernameInput" placeholder="Username"></div>
+            
 
-            <input id="pwdInput" type="password" placeholder="Password">
+            <div class="rowAlign"><input id="pwdInput" type="password" placeholder="Password"></div>
 
-            <button onclick="login()">Sign in</button>
+            <div class="rowAlign"><button onclick="login()">Sign in</button></div>
         </div>
 
         <script src="{{ url_for('static', filename='script.js') }}"></script>

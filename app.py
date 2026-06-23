@@ -36,6 +36,7 @@ class Course(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     course_name = db.Column(db.String(100))
+    time = db.Column(db.String(100))
     capacity = db.Column(db.Integer, default=10)
 
     instructor_id = db.Column(
@@ -90,21 +91,25 @@ with app.app_context():
         # Create courses
         course1 = Course(
             course_name="Physics 121",
+            time="TR 2:30-4:20 PM",
             capacity=10,
             instructor_id=instructor1.id
         )
         course2 = Course(
             course_name="CS 106",
+            time="MWF 10:30-12:20 PM",
             capacity=10,
             instructor_id=instructor2.id
         )
         course3 = Course(
             course_name="Math 101",
+            time="WF 4:30-6:20 PM",
             capacity=8,
             instructor_id=instructor3.id
         )
         course4 = Course(
             course_name="CS 162",
+            time="TR 12:00-1:50 PM",
             capacity=4,
             instructor_id=instructor2.id
         )
@@ -138,9 +143,6 @@ with app.app_context():
         db.session.add(Enrollment(student_id=student4.id, course_id=course2.id, grade=87))
 
         db.session.commit()
-
-# with app.app_context():
-#     db.create_all()
 
 @app.route("/")
 def home():
@@ -410,9 +412,13 @@ def get_courses():
     result = []
 
     for course in courses:
+        enrollment_count = Enrollment.query.filter_by(course_id=course.id).count()
         result.append({
             "id": course.id,
-            "name": course.course_name
+            "name": course.course_name,
+            "time": course.time,
+            "capacity": course.capacity,
+            "enrolled": enrollment_count
         })
 
     return jsonify(result)
