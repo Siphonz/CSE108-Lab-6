@@ -246,6 +246,7 @@ def get_enrolled_courses():
         db.session.query(
             Course.id,
             Course.course_name,
+            Course.time,
             Course.capacity,
             Instructor.name,
             Enrollment.grade
@@ -269,8 +270,9 @@ def get_enrolled_courses():
         result.append({
             "id": row[0],
             "name": row[1],
-            "teacher": row[3],
-            "grade": row[4]
+            "time": row[2],
+            "teacher": row[4],
+            "grade": row[5]
         })
 
     return jsonify(result)
@@ -304,6 +306,7 @@ def get_available_courses():
         result.append({
             "id": course.id,
             "name": course.course_name,
+            "time": course.time,
             "teacher": instructor.name if instructor else "Unknown",
             "capacity": course.capacity,
             "enrolled": enrollment_count,

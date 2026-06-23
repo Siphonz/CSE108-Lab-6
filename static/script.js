@@ -236,7 +236,7 @@ async function loadStudentAvailableCourses() {
         <tr>
             <td>${course.name}</td>
             <td>${course.teacher}</td>
-            <td>TBD</td>
+            <td>${course.time}</td>
             <td>${course.enrolled}/${course.capacity}</td>
             <td>
                 ${buttonHTML}
