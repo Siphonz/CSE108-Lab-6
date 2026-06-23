@@ -49,7 +49,7 @@ async function loadInstructorCourse()   {
     let btnState = document.getElementById("exitBtn");  // Set Logout Button
     btnState.innerHTML = `
         <button onclick="logout()">
-            Log Out
+            Sign Out
         </button>
     `;
     let table = document.getElementById("tableDisplay");

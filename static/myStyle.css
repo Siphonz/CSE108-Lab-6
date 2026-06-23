@@ -48,10 +48,11 @@ button:hover    {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
+    margin: 16px;
 }
 
-.center {
-    display:flex;
+.loginBox {
+    display:flexbox;
     align-items: center;
     margin: 0 auto;
     margin-top: 32px;
